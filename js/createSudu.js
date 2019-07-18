@@ -39,7 +39,7 @@
 			}while(blackArr.some(function(data){
 				if(data.block == block){
 					flag ++;
-					if(flag>5){
+					if(flag>Math.ceil(num/9)-1){
 						return true;
 					}
 				}
