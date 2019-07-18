@@ -1,0 +1,82 @@
+.psw_container{
+	background-color: #eeedef;
+}
+.psw_header{
+	background-color: #007AFF;
+}
+.psw_title{
+	color: #fff;
+}
+.game_space{
+	display: flex;
+	flex-wrap: wrap;
+	height: 3rem;
+	margin-top: .2rem;
+	justify-content: center;
+}
+table{
+	background-color: #fff;
+	border-bottom: 4px solid #c0c0c0;
+	border-right: 4px solid #c0c0c0;
+}
+table tr td{
+	text-align: center;
+	vertical-align: middle;
+	border: 2px solid #c0c0c0;
+	width: .4rem;
+	height: .4rem;
+}
+table tr td:nth-of-type(1){
+	border-left: none;
+}
+.nobottomBor{
+	border-bottom: none;
+}
+.norightBor{
+	border-right: none;
+}
+.gred{
+	background-color: #808080;
+	color: #fff;
+}
+.psw_footer{
+	display: flex;
+}
+.psw_footer button{
+	flex: 1;
+}
+.tools{
+	position: fixed;
+}
+.tools table{
+	border: none ;
+}
+.tools table tr td{
+	border: 2px solid #c0c0c0;
+}
+.needNum{
+	color: #141414;
+}
+.pink{
+	background-color: #ffcccc;
+	color: #fff;
+}
+.green{
+	background-color: #339900;
+	color: #fff;
+}
+.blue{
+	background-color: #007AFF;
+	color: #fff;
+}
+@media screen and (min-width:450px) {
+	.psw_container{
+		width: 300px;
+		min-height: 500px;
+		margin: 20px auto;
+	}
+	.tools table {
+		width: 1.2rem;
+		height: 1.6rem;
+	}
+}

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link rel="stylesheet" type="text/css" href="css/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="css/psw_h5.css"/>
+	<link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+    </script>
+	
+</head>
+<body>
+	<div class="psw_container" @tap = "isShow = false">
+		<div class="psw_header">
+			<h5 class="psw_title">数独游戏</h5>
+		</div>
+		<div class="psw_content">
+			<div class="game_space">
+				<table class="game_block" :class="{norightBor:index == 2 || index == 5 || index == 8,nobottomBor:index == 6 || index == 7 || index == 8}" v-for="(item,index) in blockData">
+					<tr v-for="(it,ind) in item">
+						<td class="gred"  v-text="it[0]" v-if="typeof it[0] === 'number'"></td>
+						<td class="needNum" :class="{pink:status[index][ind][0] == 1,green:status[index][ind][0]==2}" v-else-if="it[0] == 0"  @tap="checkNum(index,ind,0)" ></td>
+						<td class="needNum" :class="{pink:status[index][ind][0] == 1,green:status[index][ind][0]==2}" v-else v-text="it[0]"   @tap="checkNum(index,ind,0)" ></td>
+						
+						<td class="gred" v-text="it[1]" v-if="typeof it[1] === 'number'"></td>
+						<td class="needNum" :class="{pink:status[index][ind][1] == 1,green:status[index][ind][1]==2}" v-else-if="it[1] == 0"  @tap="checkNum(index,ind,1)" ></td>
+						<td class="needNum" :class="{pink:status[index][ind][1] == 1,green:status[index][ind][1]==2}" v-else v-text="it[1]"   @tap="checkNum(index,ind,1)" ></td>
+						
+						<td class="gred" v-text="it[2]" v-if="typeof it[2] === 'number'"></td>
+						<td class="needNum" :class="{pink:status[index][ind][2] == 1,green:status[index][ind][2]==2}" v-else-if="it[2] == 0"  @tap="checkNum(index,ind,2)" ></td>
+						<td class="needNum" :class="{pink:status[index][ind][2] == 1,green:status[index][ind][2]==2}" v-else v-text="it[2]"   @tap="checkNum(index,ind,2)" ></td>
+					</tr>
+				</table>
+			</div>
+			<div class="tools" v-show="isShow" :style="styleLocation">
+				<table border="">
+					<tr v-for="(item,index) in toolCont">
+						<td v-if="index != 3" @tap="setNum(it)" v-for="(it,ind) in item" v-text="it"></td>
+						<td v-if="index == 3" @tap="setNum(it)" v-for="(it,ind) in item" :class="{pink:ind == 0,blue:ind == 1,green:ind == 2}"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="psw_footer" >
+			<button type="button" @tap="check">完成</button>
+			<button type="button" @tap="init(num)">重置</button>
+			<button type="button" @tap="reset">重玩</button>
+			<button type="button" @tap="clear">清理</button>
+			<button type="button" @tap="choose">重建</button>
+		</div>
+	</div>
+	<script src="js/psw_h5.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/vue.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/createSudu.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		var blockData;
+		new Vue({
+			el:".psw_container",
+			data(){
+				return{
+					toolCont:[[1,2,3],[4,5,6],[7,8,9],[-1,0,-2]],
+					blockData:[],
+					status:[],
+					isShow:false,
+					styleLocation:"111",
+					currNum:{},
+					num:''
+				}
+			},
+			mounted(){
+				this.choose();
+			},
+			methods:{
+				init(num){
+					var sudu = new Sudu();
+					blockData = sudu.init(num);
+					if(!blockData){
+						this.choose();
+						return;
+					}
+					this.tofact(blockData);
+				},
+				choose(){
+					mui.closePopup();
+					var that = this;
+					setTimeout(function(){
+						mui.prompt('请输入空白数','空白数为9-54','难度选择',['确认'],function(e){
+							that.num = e.value;
+							if(that.num<9 || that.num>54){
+								return that.reChoose();
+							}
+							that.init(that.num);
+						},'div')
+					},1)
+					
+				},
+				reChoose(){
+					mui.confirm('请输入合适的空格数','提示',['确认'], (e)=> {
+						return  this.choose();
+					},'div')
+				},
+				reset(){
+					this.tofact(blockData);
+				},
+				clear(){
+					for(var i=0;i<9;i++){
+						this.status[i] = [];
+						for(var j=0;j<3;j++){
+							this.status[i][j] = [];
+						}
+					}
+					this.$forceUpdate();
+				},
+				checkNum(index,ind,num){
+					var e= window.event;
+					var screenWidth=window.screen.width;
+					var screenHeight = window.screen.height;
+					if(screenWidth >450){
+						var x = e.detail.changedTouches[0].clientX+30;
+						var y = e.detail.changedTouches[0].clientY;
+					}
+					if(screenWidth<450){
+						var x = screenWidth-e.detail.changedTouches[0].clientX<150?screenWidth-150:e.detail.changedTouches[0].clientX;
+						var y = screenHeight-e.detail.changedTouches[0].clientY<180?screenHeight-180:e.detail.changedTouches[0].clientY;
+					}
+					this.styleLocation ="left:"+x+'px;'+ "top:"+ y+'px';
+					this.isShow = true;
+					this.currNum = {
+						index,ind,num
+					};
+					event.stopPropagation();
+				},
+				setNum(it){
+					if(it == -1){
+						this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]] == 1?this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]]=0:this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]]=1;
+					}else if(it == -2){
+						this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]] == 2?this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]]=0:this.status[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]]=2;
+					}else{
+						this.blockData[this.currNum["index"]][this.currNum["ind"]][this.currNum["num"]] =String(it);
+					}
+					this.isShow = false;
+					this.$forceUpdate();
+					event.stopPropagation();
+				},
+				tofact(blockData){
+					var data=[];
+					for(var i=0;i<9;i++){
+						var temp =[[],[],[]];
+						var n=0,m=0;
+						var x = Math.floor(i/3)*3,y = i%3*3;
+						for(j=x;j<x+3;j++){
+							m = 0;
+							for(k=y;k<y+3;k++){
+								temp[n][m] = blockData[j][k];
+								m++;
+							}
+							n++;
+						}
+						data[i] = temp;
+					}
+					this.blockData = data;
+					for(var i=0;i<9;i++){
+						this.status[i] = [];
+						for(var j=0;j<3;j++){
+							this.status[i][j] = [];
+						}
+					}
+				},
+				check(){
+					if(this.checkTh() && this.checkRow() && this.checkCol()){
+						mui.alert("恭喜你解答正确");
+					}else{
+						mui.alert("解答错误");
+					}
+					
+				},
+				checkTh(){
+					var data = this.blockData;
+					var arr = [1,2,3,4,5,6,7,8,9];
+					for(var i=0;i<9;i++){
+						var block = data[i];
+						var blockArr = [];
+						for(var j=0;j<3;j++){
+							blockArr = blockArr.concat(block[j]);
+						}
+						for(var k=0;k<9;k++){
+							if(arr[i] != quickSort(blockArr)[i]){
+								return false;
+							}
+						}
+						return true;
+					}
+				},
+				checkRow(){
+					var data = this.blockData;
+					var arr = [1,2,3,4,5,6,7,8,9];
+					var rowArr = [];
+					for(var i=0;i<9;i++){
+						rowArr[i] = [];
+						for(j=Math.floor(i/3)*3;j<Math.floor(i/3)*3+3;j++){
+							for(var h=0;h<3;h++){
+								rowArr[i] = rowArr[i].concat(data[j][i%3][h])
+							}
+						}			
+					}
+					for(var i=0;i<9;i++){
+						for(var k=0;k<9;k++){
+							if(arr[k] != quickSort(rowArr[i])[k]){
+								return false;
+							}
+						}
+					}		
+					return true;
+					
+				},
+				checkCol(){
+					var data = this.blockData;
+					var arr = [1,2,3,4,5,6,7,8,9];
+					var colArr = [];
+					for(var i=0;i<9;i++){
+						colArr[i] = [];
+						for(j=Math.floor(i/3);j<Math.floor(i/3)+7;j+=3){
+							for(var h=0;h<3;h++){
+								colArr[i] = colArr[i].concat(data[j][h][i%3])
+							}
+						}			
+					}
+					for(var i=0;i<9;i++){
+						for(var k=0;k<9;k++){
+							if(arr[k] != quickSort(colArr[i])[k]){
+								return false;
+							}
+						}
+					}		
+					return true;
+				}
+			}
+		})
+	</script>	
+		
+</body>
+</html>
