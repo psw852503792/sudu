@@ -78,7 +78,11 @@
 			methods:{
 				init(num){
 					var sudu = new Sudu();
-					blockData = sudu.init(num);
+					try{
+						blockData = sudu.init(num);
+					}catch(e){
+						alert("生成失败，点击重新生成");
+					}
 					if(!blockData){
 						this.choose();
 						return;
