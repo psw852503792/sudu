@@ -60,7 +60,7 @@
 	this.randomNum = function(){
 	 	return Math.floor(Math.random()*9) + 1;
 	}
-	this.random = function(a,b){
+	this.random = function(){
 	 	var temp = Math.random();
 	 	if(temp >.5){
 	 		return -1
